@@ -1,0 +1,16 @@
+<div>
+  <div>{{main_section}}</div>
+  <br/>
+  <br/>
+  <br/>
+  <table>
+    <tbody>
+      {% for fn in footnotes %}
+        <tr>
+          <td>{{fn['symbol']}}</td>
+          <td>{{fn['note']}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

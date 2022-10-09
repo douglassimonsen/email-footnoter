@@ -1,7 +1,9 @@
 import collections
-import enum
+from pydoc import plain
+import jinja2
 FOOTNOTE_SYMBOLS = '*†‡§¶#♠♥♦♣'
 FOOTNOTE_SYMBOLS_LEN = len(FOOTNOTE_SYMBOLS)
+template = jinja2.Template(open('template.html').read())
 
 
 def get_pairs(txt):
@@ -29,13 +31,26 @@ def generate_text(txt, pairs):
     footnotes = []
     offset = 0
     for i, pair in enumerate(reversed(pairs)):  # need to reverse so earlier ones don't impact later ones
-        footnotes.append(txt[(pair[0] + 1):(pair[1] - 1)])
+        footnotes.append({
+            'symbol': get_foot_symbol(i),
+            'note': txt[(pair[0] + 1):(pair[1] - 1)],
+        })
         txt = txt[:pair[0]].strip() + get_foot_symbol(i) + txt[pair[1]:]  # stripping just for visual appeal
-    txt += '\n\n' + '\n'.join(
-        get_foot_symbol(i) + ' ' + x
-        for i, x in enumerate(reversed(footnotes))  # need a secondary reverse to undo the first one
+    footnotes = footnotes[::-1]
+
+    plaintext = txt + '\n\n' + '\n'.join(
+        fn['symbol'] + ' ' + fn['note']
+        for fn in footnotes  # need a secondary reverse to undo the first one
     )
-    print(txt)
+    
+    html = template.render(
+        main_section=txt,
+        footnotes=footnotes
+    )
+    return {
+        'text': plaintext,
+        'html': html,
+    }
 
 
 def main():
